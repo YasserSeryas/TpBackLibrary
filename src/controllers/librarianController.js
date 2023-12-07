@@ -44,9 +44,11 @@ const LibrarianController = {
             return;
           }
     
-          // You can use sessions, tokens, or other authentication mechanisms here
-          // For simplicity, let's just send a success message
-          ctx.body = { message: 'Login successful' };
+          // Generate a JWT token
+          const token = generateToken(librarian._id, 'librarian');
+    
+          // Send the token in the response
+          ctx.body = { token, message: 'Login successful' };
         } catch (error) {
           ctx.status = 500;
           ctx.body = { error: 'Internal Server Error' };
