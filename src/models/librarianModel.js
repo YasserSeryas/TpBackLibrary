@@ -1,13 +1,28 @@
 // models/librarian.js
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const librarianSchema = new mongoose.Schema({
-  email: String,
-  username: String,
-  password: String,
-  managedBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }],
+const librarianSchema = new Schema({
+  email: {
+    type: String,
+    lowercase: true,
+    required: true,
+    unique: true,
+  },
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    
+  },
+  password: {
+    type: String,
+    required: true,
+    select: false,
+},
+  managedBooks: [{ type: Schema.Types.ObjectId, ref: 'Book' }],
 });
 
-const Librarian = mongoose.model('Librarian', librarianSchema);
+const Librarian = model('Librarian', librarianSchema);
 
-module.exports = Librarian;
+export default Librarian;

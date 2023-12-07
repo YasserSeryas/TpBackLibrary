@@ -1,7 +1,7 @@
+// authMiddleware.js
+import jwt from 'jsonwebtoken';
 
-const jwt = require('jsonwebtoken');
-
-const authenticate = (ctx, next) => {
+const authenticate = async (ctx, next) => {
   const token = ctx.header.authorization;
 
   if (!token) {
@@ -14,11 +14,11 @@ const authenticate = (ctx, next) => {
     const secretKey = 'your-secret-key'; // Replace with the same secret key used for token generation
     const decoded = jwt.verify(token, secretKey);
     ctx.state.user = decoded;
-    return next();
+    await next();
   } catch (error) {
     ctx.status = 401;
     ctx.body = { error: 'Unauthorized - Invalid token' };
   }
 };
 
-module.exports = { authenticate };
+export default authenticate;

@@ -1,24 +1,26 @@
 // controllers/userController.js
-const User = require('../models/user');
-const bcrypt = require('bcrypt');
+import User from '../models/userModel.js';
+import Book from '../models/bookModel.js';
+import { hash, compare } from 'bcrypt';
+import  generateToken  from '../utils/auth.js';
 
 const UserController = {
   register: async (ctx) => {
-    const { username, password } = ctx.request.body;
+    const { username, email, password } = ctx.request.body;
 
     try {
-      // Check if the username already exists
-      const existingUser = await User.findOne({ username });
+      // Check if the username or email already exists
+      const existingUser = await User.findOne({ $or: [{ username }, { email }] });
       if (existingUser) {
         ctx.status = 400;
-        ctx.body = { error: 'Username already exists' };
+        ctx.body = { error: 'Username or email already exists' };
         return;
       }
 
       // Hash the password before saving it
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await hash(password, 10);
 
-      const newUser = new User({ username, password: hashedPassword });
+      const newUser = new User({ username, email, password: hashedPassword });
       await newUser.save();
 
       ctx.status = 201;
@@ -30,28 +32,39 @@ const UserController = {
   },
   login: async (ctx) => {
     const { username, password } = ctx.request.body;
-
+  
     try {
-      // Find the user by username
-      const user = await User.findOne({ username });
-
-      // Check if the user exists and if the password is correct
-      if (!user || !(await bcrypt.compare(password, user.password))) {
+      // Find the user by username and select the password field
+      const user = await User.findOne({ username }).select('password');
+  
+      // Check if the user exists
+      if (!user) {
         ctx.status = 401; // Unauthorized
         ctx.body = { error: 'Invalid username or password' };
         return;
       }
-
+  
+      // Check if the password is correct
+      const isPasswordValid = await compare(password, user.password);
+      if (!isPasswordValid) {
+        ctx.status = 401; // Unauthorized
+        ctx.body = { error: 'Invalid username or password' };
+        return;
+      }
+  
       // Generate a JWT token
       const token = generateToken(user._id, 'user');
-
+  
       // Send the token in the response
       ctx.body = { token, message: 'Login successful' };
     } catch (error) {
+      console.error('Error during login:', error);
       ctx.status = 500;
       ctx.body = { error: 'Internal Server Error' };
     }
-},
+  },
+  
+  
   listAllBooks: async (ctx) => {
     try {
       const books = await Book.find();
@@ -80,7 +93,7 @@ const UserController = {
 
     try {
       // Check if the user exists
-      const user = await User.findById(userId);
+      const user = await Book.findById(userId);
       if (!user) {
         ctx.status = 404;
         ctx.body = { error: 'User not found' };
@@ -114,7 +127,7 @@ const UserController = {
 
     try {
       // Check if the user exists
-      const user = await User.findById(userId);
+      const user = await Book.findById(userId);
       if (!user) {
         ctx.status = 404;
         ctx.body = { error: 'User not found' };
@@ -145,7 +158,7 @@ const UserController = {
 
     try {
       // Check if the user exists
-      const user = await User.findById(userId);
+      const user = await Book.findById(userId);
       if (!user) {
         ctx.status = 404;
         ctx.body = { error: 'User not found' };
@@ -174,7 +187,7 @@ const UserController = {
       ctx.status = 500;
       ctx.body = { error: 'Internal Server Error' };
     }
-  },e
+  },
 };
 
-module.exports = UserController;
+export default UserController;

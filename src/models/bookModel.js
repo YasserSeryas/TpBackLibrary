@@ -1,7 +1,7 @@
 // models/book.js
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const bookSchema = new mongoose.Schema({
+const bookSchema = new Schema({
   ISBN: String,
   title: String,
   author: String,
@@ -9,6 +9,6 @@ const bookSchema = new mongoose.Schema({
   availableCopies: Number,
 });
 
-const Book = mongoose.model('Book', bookSchema);
+const Book = model('Book', bookSchema);
 
-module.exports = Book;
+export default Book;

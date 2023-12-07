@@ -1,19 +1,17 @@
-// routes/userRoutes.js
-const Router = require('@koa/router');
-const UserController = require('../controllers/userController');
-const { authenticate } = require('../middleware/authMiddleware');
+// userRoutes.js
+import Router from '@koa/router';
+import  UserController from '../controllers/userController.js';
+import authenticate from '../middleware/authMiddleware.js';
 
-const router = new Router();
-router.post('/register', UserController.register);
-router.post('/login', UserController.login);
-router.post('/search-books', UserController.searchBooks);
-router.post('/borrow-book', authenticate, UserController.borrowBook);
-router.post('/reserve-book', authenticate, UserController.reserveBook);
-router.post('/return-book', authenticate, UserController.returnBook);
-router.get('/list-all-books', UserController.listAllBooks);
-router.get('/view-book/:id', UserController.viewBookDetails);
+const user = new Router();
 
-// Add more routes as needed
+user.post('/register', UserController.register);
+user.post('/login', UserController.login);
+user.post('/search-books', UserController.searchBooks);
+user.post('/borrow-book', authenticate, UserController.borrowBook);
+user.post('/reserve-book', authenticate, UserController.reserveBook);
+user.post('/return-book', authenticate, UserController.returnBook);
+user.get('/list-all-books', UserController.listAllBooks);
 
-module.exports = router.routes();
 
+export default user;

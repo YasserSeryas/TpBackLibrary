@@ -1,16 +1,16 @@
 // routes/librarianRoutes.js
-const Router = require('@koa/router');
-const LibrarianController = require('../controllers/librarianController');
-const { authenticate } = require('../middleware/authMiddleware');
-const router = new Router();
+import Router from '@koa/router';
+import librarianController from '../controllers/librarianController.js';
+import authenticate from '../middleware/authMiddleware.js';
+const librarian = new Router();
 
-router.post('/search-books', LibrarianController.searchBooks);
-router.post('/add-book',authenticate, LibrarianController.addBook);
-router.post('/remove-book',authenticate, LibrarianController.removeBook);
-router.post('/register', LibrarianController.register);
-router.post('/login', LibrarianController.login);
-router.get('/list-all-books', LibrarianController.listAllBooks);
+librarian.post('/search-books', librarianController.searchBooks);
+librarian.post('/add-book',authenticate, librarianController.addBook);
+librarian.post('/remove-book',authenticate, librarianController.removeBook);
+librarian.post('/register', librarianController.register);
+librarian.post('/login', librarianController.login);
+librarian.get('/list-all-books', librarianController.listAllBooks);
 
 // Add more routes as needed
 
-module.exports = router.routes();
+export default librarian;
