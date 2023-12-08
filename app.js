@@ -16,3 +16,4 @@ app
 .use(API_V1_ROUTER.allowedMethods())
 
 app.listen(process.env.PORT, () => console.log(`server listening to port: ${process.env.PORT}`))
+export default app;

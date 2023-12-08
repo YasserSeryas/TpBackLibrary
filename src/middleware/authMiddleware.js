@@ -12,10 +12,10 @@ export const authenticate = async (ctx, next) => {
 
   try {
     const secretKey = 'secretcode';
-    console.log(typeof token) 
+   
     // Replace with the same secret key used for token generation
     const decoded = jwt.verify(token.split(' ')[1], secretKey);
-    console.log("deco",decoded)
+
     ctx.state.user = decoded;
     await next();
   } catch (error) {
@@ -37,7 +37,7 @@ export const resolveRole = async (ctx, next) => {
       return;
     }
 
-    console.log(user.role);
+   
 
     if (user.role !== 'librarian') {
       ctx.status = 403;
