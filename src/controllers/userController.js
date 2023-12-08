@@ -56,6 +56,7 @@ const UserController = {
       const token = generateToken(user._id, 'user');
   
       // Send the token in the response
+      ctx.status = 200;
       ctx.body = { token,userdata, message: 'Login successful' };
     } catch (error) {
       console.error('Error during login:', error);
