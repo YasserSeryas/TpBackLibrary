@@ -20,7 +20,15 @@ const userSchema = new Schema({
     required: true,
     select: false,
 },
+  role: {
+    type: String,
+    lowercase: true,
+    enum: ["user", "librarian"],  
+    default: "user",
+    required: true,
+  },
   borrowedBooks: [{ type: Schema.Types.ObjectId, ref: 'Book' }],
+  managedBooks: [{ type: Schema.Types.ObjectId, ref: 'Book' }],
 });
 
 const User = model('User', userSchema);

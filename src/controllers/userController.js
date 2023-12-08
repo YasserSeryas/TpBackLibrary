@@ -6,7 +6,7 @@ import  generateToken  from '../utils/auth.js';
 
 const UserController = {
   register: async (ctx) => {
-    const { username, email, password } = ctx.request.body;
+    const { username, email, password,role } = ctx.request.body;
 
     try {
       // Check if the username or email already exists
@@ -20,7 +20,7 @@ const UserController = {
       // Hash the password before saving it
       const hashedPassword = await hash(password, 10);
 
-      const newUser = new User({ username, email, password: hashedPassword });
+      const newUser = new User({ username, email, password: hashedPassword,role });
       await newUser.save();
 
       ctx.status = 201;
@@ -51,12 +51,12 @@ const UserController = {
         ctx.body = { error: 'Invalid username or password' };
         return;
       }
-  
+      const userdata = await User.findOne({ username });
       // Generate a JWT token
       const token = generateToken(user._id, 'user');
   
       // Send the token in the response
-      ctx.body = { token, message: 'Login successful' };
+      ctx.body = { token,userdata, message: 'Login successful' };
     } catch (error) {
       console.error('Error during login:', error);
       ctx.status = 500;
@@ -184,6 +184,101 @@ const UserController = {
 
       ctx.body = { message: 'Book returned successfully' };
     } catch (error) {
+      ctx.status = 500;
+      ctx.body = { error: 'Internal Server Error' };
+    }
+  },
+  addBook: async (ctx) => {
+    const { ISBN, title, author, genre, availableCopies } = ctx.request.body;
+
+    try {
+      // Check if the book with the same ISBN already exists
+      const existingBook = await Book.findOne({ ISBN });
+      if (existingBook) {
+        ctx.status = 400;
+        ctx.body = { error: 'Book with the same ISBN already exists' };
+        return;
+      }
+
+      // Create a new book
+      const newBook = new Book({
+        ISBN,
+        title,
+        author,
+        genre,
+        availableCopies,
+      });
+
+      // Save the new book to the catalog
+      await newBook.save();
+
+      ctx.status = 201;
+      ctx.body = { message: 'Book added to the catalog successfully' };
+    } catch (error) {
+      ctx.status = 500;
+      ctx.body = { error: 'Internal Server Error' };
+    }
+
+  },
+
+  removeBook: async (ctx) => {
+    const { bookId } = ctx.request.body;
+
+    try {
+      // Check if the book exists
+      const existingBook = await Book.findById(bookId);
+      if (!existingBook) {
+        ctx.status = 404;
+        ctx.body = { error: 'Book not found' };
+        return;
+      }
+
+      // Remove the book from the catalog
+      await existingBook.remove();
+
+      ctx.body = { message: 'Book removed from the catalog successfully' };
+    } catch (error) {
+      ctx.status = 500;
+      ctx.body = { error: 'Internal Server Error' };
+    }
+  },
+  updateBook: async (ctx) => {
+    const { bookId, title, author, genre, availableCopies } = ctx.request.body;
+
+    try {
+      // Find the book by ID
+      const book = await Book.findById(bookId);
+
+      // Check if the book exists
+      if (!book) {
+        ctx.status = 404;
+        ctx.body = { error: 'Book not found' };
+        return;
+      }
+
+      // Update the book fields
+      if (title) {
+        book.title = title;
+      }
+
+      if (author) {
+        book.author = author;
+      }
+
+      if (genre) {
+        book.genre = genre;
+      }
+
+      if (availableCopies !== undefined) {
+        book.availableCopies = availableCopies;
+      }
+
+      // Save the updated book
+      await book.save();
+
+      ctx.body = { message: 'Book updated successfully', updatedBook: book };
+    } catch (error) {
+      console.error('Error during updateBook:', error);
       ctx.status = 500;
       ctx.body = { error: 'Internal Server Error' };
     }
